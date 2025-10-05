@@ -45,11 +45,11 @@ export type PrivateField = {
 local function prototype(self: Type, ui: ScreenGui)
 	---->> Public Properties
 	self.UI         	= ui :: ScreenGui
-	self.Frame      	= self.UI:WaitForChild("Frame") :: Frame
-	self.MainFrame      = self.Frame:WaitForChild("MainFrame") :: Frame
-	self.WorldLabel     = self.MainFrame:WaitForChild("World") :: TextLabel
-	self.ScrollingFrame = self.MainFrame:WaitForChild("ScrollingFrame") :: ScrollingFrame
-	self.TemplateCard   = self.ScrollingFrame:WaitForChild("Template") :: Frame
+	self.Frame      	= self.UI.Frame :: Frame
+	self.MainFrame      = self.Frame.MainFrame :: Frame
+	self.WorldLabel     = self.MainFrame.World :: TextLabel
+	self.ScrollingFrame = self.MainFrame.ScrollingFrame :: ScrollingFrame
+	self.TemplateCard   = self.ScrollingFrame.Template :: Frame
     
 	---->> Private Properties
 	self._private = {
@@ -124,9 +124,9 @@ function module.methods.Load(self: Type, world: number)
 			card.Name = map.Name
 			card.Parent = self.ScrollingFrame
 			card.Visible = true
-			card:WaitForChild("Name").Text = map.Name
-			card:WaitForChild("Overlay").Visible = false
-			Button.Button(card, _mapUnlocked[k] or false):Connect(function()
+			card.NameMap.Text = map.Name
+			card.Overlay.Visible = false
+			Button.Button(card, _mapUnlocked[k] and true or false):Connect(function()
 				print("button")
 				Client.Select_Map.Call(world, k)
 			end)

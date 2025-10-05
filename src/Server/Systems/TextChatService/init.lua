@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextChatService = game:GetService("TextChatService")
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
-local RunService = game:GetService("RunService")
 --refs
 --modules
 local Yumi = require(ReplicatedStorage.Shared.Core.Yumi)

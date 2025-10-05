@@ -2,13 +2,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Signal = require(ReplicatedStorage:WaitForChild("Packages"):WaitForChild("Signal"))
+local Ripple = require(ReplicatedStorage.Shared.Core.Utils.Ripple)
 
 
 local Buttons = {}
 
 local function Button(frame: Frame, isLocked: boolean) :  (Signal.Signal<nil>)
+	print("isLocked",isLocked,frame)
     local activated = Signal.new()
-	-- local activated_Gold = Signal.new()
 
 	local enabled = Instance.new("BoolValue")
 	enabled.Name = "Enabled"
@@ -42,6 +43,20 @@ local function Button(frame: Frame, isLocked: boolean) :  (Signal.Signal<nil>)
 	uiScale.Name = "UIScale"
 	uiScale.Parent = frame
 
+
+	local on = Ripple.new({
+        function()
+            -- Bắt đầu tween lên 1.1
+        end,
+        TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Value = 1.1,
+        }),
+        -- Thêm tween quay về 1 (chỉ chạy nếu cần)
+        -- TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+        --     Value = 1,
+        -- })
+    }, false)
+
 	enabled.Changed:Connect(function()
 		if enabled.Value then
 			TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -55,16 +70,23 @@ local function Button(frame: Frame, isLocked: boolean) :  (Signal.Signal<nil>)
 	end)
 
 	hovered.Changed:Connect(function()
-		if hovered.Value then
-			-- Sounds.Hovered:Play()
+		-- if hovered.Value then
+		-- 	-- Sounds.Hovered:Play()
 
-			TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Value = 1.1,
-			}):Play()
+		-- 	TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+		-- 		Value = 1.1,
+		-- 	}):Play()
+		-- else
+		-- 	TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+		-- 		Value = 1,
+		-- 	}):Play()
+		-- end
+		if hovered.Value then
+		on:Play()
+
 		else
-			TweenService:Create(uiScaleNumber, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-				Value = 1,
-			}):Play()
+			print("stop")
+			on:Stop()
 		end
 	end)
 
@@ -93,7 +115,7 @@ local function Button(frame: Frame, isLocked: boolean) :  (Signal.Signal<nil>)
             overlay.Visible = true
         end
     end
-
+	SetLock(isLocked)
     locked.Changed:Connect(function()
         SetLock(locked.Value)
     end)

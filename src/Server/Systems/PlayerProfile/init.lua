@@ -72,6 +72,7 @@ local function OnPlayerAdded(player: Player)
 					Data = module.GetEditablePlayerProfile(player) :: ProfileTemplate.Profile,
 				} :: PlayerProfileObserver.LoadedEventArgs
 			)
+			print('profile',profile.Data)
 			UpdateClientProfile(player)
 		else
 			-- The player has left before the profile session started

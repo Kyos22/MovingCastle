@@ -7,7 +7,7 @@ local Players             = game:GetService("Players")
 local TweenService        = game:GetService("TweenService")
 --refs
 local WORLDS = game.Workspace:WaitForChild("Worlds")
---modules
+--Matchs
 local ZonePlus = require(ReplicatedStorage.Packages.ZonePlus)
 local Yumi = require(ReplicatedStorage.Shared.Core.Yumi)
 local Server = require(ReplicatedStorage.Shared.Network.Server)
@@ -39,20 +39,20 @@ export type APIsType = {
 
 -- Players.CharacterAutoLoads = false
 
-local module = {} :: APIsType & Yumi.System
+local Match = {} :: APIsType & Yumi.System
 local connections = {} :: {}
 
 
 -- apis
-module._Setup = function()
-    module.waitingMatch = {}
-    module.tasks = {}
-    module.Zones = {}
+Match._Setup = function()
+    Match.waitingMatch = {}
+    Match.tasks = {}
+    Match.Zones = {}
 end
 
-module._Start = function()
+Match._Start = function()
 
-    module:InitZone()
+    Match:InitZone()
 
 
     connections["Player_CheckWorld"] = 
@@ -81,43 +81,33 @@ module._Start = function()
                 
             end
 
-            module:CheckZone(event.Player)
+            Match:CheckZone(event.Player)
 
         end)
     
     connections["Player_Removing"] = Players.PlayerRemoving:Connect(function(player:Player)
-        module:Destroy(player)
+        Match:Destroy(player)
     end)
 
     connections["API_Select_Map"] =
         Server.Select_Map.SetCallback(function(player:Player, world: number, map: number)
-            return module:SelectMap(player,world,map)
+            return Match:SelectMap(player,world,map)
         end)
 
     --init all zone
-    -- module:CheckZone()
-    module:CreateRoom()
+    -- Match:CheckZone()
+    Match:CreateRoom()
 
 end
 
-module.InitZone = function(self:APIsType)
+Match.InitZone = function(self:APIsType)
     local FireZones = CollectionService:GetTagged("FIRE_ZONE")
 
     self.tasks["InitZone"] = task.spawn(function()
             for _,zone in pairs(FireZones) do
                 local zonePlus = ZonePlus.new(zone)
-                -- local conn =zonePlus.playerEntered:Connect(function(player:Player)
-                --     print("pla",player)
-                --     local parentZone = zone.Parent.Name
-                --     local str = string.find(parentZone, "Fire")
-                --     if str == 1 then -- exist 
-                        
-                --     end
-                -- end) 
                 self.Zones[zone] = zonePlus
-            end
-
-        
+            end   
     end)
 end
 
@@ -134,17 +124,16 @@ local function GetRoom(zoneInstance,zone) : string
         return stringCombine
 end
 
-module.Teleport = function(self:APIsType, roomName: string)
+Match.Teleport = function(self:APIsType, roomName: string)
     if self.waitingMatch[roomName] and #self.waitingMatch[roomName].Players == 2 then
         -- zap handle
         -- Server.
         task.wait(5)
- 
     end
 end
 
 
-module.CheckZone = function(self:APIsType,player:Player)
+Match.CheckZone = function(self:APIsType,player:Player)
     local zones = self.Zones
     task.spawn(function()
         for zoneInstance,zone in pairs(zones) do
@@ -153,75 +142,74 @@ module.CheckZone = function(self:APIsType,player:Player)
             --         print("touch", player)
             --     end)
             -- table.insert(connections[player],conn)
+            local room = GetRoom(zoneInstance,zone) :: string
+            local waitingRoom = self.waitingMatch[room]
 
             connections[player]["TouchZone"] = 
-                zone.playerEntered:Connect(function(player:Player)
-                    print("touch", player)
-                    local room = GetRoom(zoneInstance,zone)
-                    if self.waitingMatch[room] then
-                        print("count",self.waitingMatch[room])
-                        if not next(self.waitingMatch[room].Players) then
-                            self.waitingMatch[room].Players[player] = true
+                zone.playerEntered:Connect(function(player:Player)                    
+                    if waitingRoom then
+                        if not next(waitingRoom.Players) then -- check if room not exist player
+                           waitingRoom.Players[player] = true
                             Server.Open_Select_Map.Fire(player,true)
-            
-                        elseif #self.waitingMatch[room].Players < 2 then
-                            self.waitingMatch[room][player] = true
+                        elseif #waitingRoom.Players < 2 then -- check if already 1 playerr in room
+                            waitingRoom[player] = true
 
-                            local zoneParent = zoneInstance.Parent :: Instance 
+                            -- local zoneParent = zoneInstance.Parent :: Instance 
                             -- local Box = zoneParent:FindFirstChild("Box") :: Model
                             -- local PrimaryBox = Box.PrimaryPart :: Part
                             -- TweenService:Create(PrimaryBox,TweenInfo.new(1,Enum.EasingStyle.Linear),{Position = Vector3.new(PrimaryBox.Position.X,16.2,PrimaryBox.Position.Z)}):Play()
-                        elseif self.waitingMatch[room].Players and #self.waitingMatch[room].Players == 2 then
+                        elseif waitingRoom.Players and #waitingRoom.Players == 2 then -- check if 2 player in room
                             task.wait(5)
                         end
                     end
-                    print("room",self.waitingMatch[room])
                 end)
             connections[player]["LeaveZone"] = 
                 zone.playerExited:Connect(function(player:Player)
-                    print("leave", player)
-                    local room = GetRoom(zoneInstance,zone)
-                    if self.waitingMatch[room] then
-                        if self.waitingMatch[room].Players[player] then
-                            self.waitingMatch[room].Players[player] = nil
+                    -- print("leave", player)
+                    -- local room = GetRoom(zoneInstance,zone) :: string
+                    if waitingRoom then
+                        if waitingRoom.Players[player] then
+                            waitingRoom.Players[player] = nil
                         else
                             warn("full not found")
                         end
                     end
                     Server.Open_Select_Map.Fire(player,false)
 
-                    print("room 1",self.waitingMatch[room])
+                    -- print("room 1",waitingRoom[room])
                 end)
         end
     end)
 end
 
--- module.WaitingRoom = function(self:APIsType,player:Player)
+-- Match.WaitingRoom = function(self:APIsType,player:Player)
 --     if self.waitingMatch[]
 -- end
 
-module.CreateRoom = function(self:APIsType)
+Match.CreateRoom = function(self:APIsType)
     print("room",self.waitingMatch)
-    for _,k in pairs(WORLDS:GetChildren()) do
-        print("world",k)
-        print("world",k.Name)
-        local lobby = k:FindFirstChild("Lobby") :: Folder
-        print("lobby",lobby)
-        local matchZones = lobby:FindFirstChild("MatchZone") :: Folder
-        for _,zone in pairs(matchZones:GetChildren()) do
-            self.waitingMatch["World".. k.Name .. "_" .. zone.Name ] = {
-                Players = {},
-                SelectMap = 0
-            }
-            print("zone",zone)
-            print("zone",zone.Name)
+    task.spawn(function()
+        for _,k in pairs(WORLDS:GetChildren()) do
+            print("world",k)
+            print("world",k.Name)
+            local lobby = k:FindFirstChild("Lobby") :: Folder
+            print("lobby",lobby)
+            local matchZones = lobby:FindFirstChild("MatchZone") :: Folder
+            for _,zone in pairs(matchZones:GetChildren()) do
+                self.waitingMatch["World".. k.Name .. "_" .. zone.Name ] = {
+                    Players = {},
+                    SelectMap = 0
+                }
+                print("zone",zone)
+                print("zone",zone.Name)
+            end
         end
-    end
+    end)
 
     print("room",self.waitingMatch)
 end
 
-module.Destroy = function(self:APIsType,player:Player)
+Match.Destroy = function(self:APIsType,player:Player)
     if connections[player] then
         for _, conn in ipairs(connections[player]) do
             if conn then
@@ -237,22 +225,22 @@ end
 
 --apis
 
-module.SelectMap = function(self:APIsType,player:Player, world: number, map: number): boolean
+Match.SelectMap = function(self:APIsType,player:Player, world: number, map: number): boolean
     if typeof(world) == "number" and typeof(map) == "number" and world > 0 and map > 0 then
-        for roomName,roomData in pairs(module.waitingMatch) do
+        for roomName,roomData in pairs(Match.waitingMatch) do
             -- print("room haha",roomData)
             if roomData.Players[player] then
                 self.waitingMatch[tostring(roomName)].SelectMap = map
             end
         end
-        print("result",module.waitingMatch)
+        print("result",Match.waitingMatch)
         return true
     else
         return false
     end
 end
 
-return module
+return Match
 
 
 -- check vào zone, kiểm tra zone còn lại có người nào join hay không 

@@ -332,32 +332,36 @@ local function TweenModelSize(
 	end
 end
 
+local function WrapDebounce(self: Type, func)
+    return function(...)
+        if self.Debounce then return end
+        self.Debounce = true
+        func(...)
+        self.Debounce = false
+    end
+end
+
 return {
 	CountDict = CountDict,
-
 	TweenModelCFrame = TweenModelCFrame,
 	TweenModelSize = TweenModelSize,
-
 	HasProperty = HasProperty,
 	ConvertPartToProperties = ConvertPartToProperties,
 	ApplyPropertiesToPart = ApplyPropertiesToPart,
-
 	GetPrimaryPart = GetPrimaryPart,
 	GetLongestAxis = GetLongestAxis,
 	GetVolume = GetVolume,
 	GetMass = GetMass,
-
 	GetRandomPositionNearModel = require(script.RandomPosNearModel),
-
 	GetDescendantsWhichAre = GetDescendantsWhichAre,
-
 	CloneTable = CloneTable,
 	KeysMatch = KeysMatch,
 	CheckKeys = CheckKeys,
 	AreTablesSame = AreTablesSame,
-
 	Lerp = Lerp,
 	FLoorToDecimal = FloorToDecimal,
 	FormatNumber = FormatNumber,
 	NUMBER_SUFFIXES = NUMBER_SUFFIXES,
+
+	WrapDebounce = WrapDebounce,
 }

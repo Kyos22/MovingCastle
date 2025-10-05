@@ -51,7 +51,7 @@
     },
     "Players": {
       "$properties": {
-        "CharacterAutoLoads": false
+        "CharacterAutoLoads": true
       }
     }
   }
