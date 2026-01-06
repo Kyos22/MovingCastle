@@ -22,3 +22,10 @@ funct Get_Profile = {
     args: (async: boolean?),
     rets: (unknown)
 }
+---------- car ---------------
+event car_move = {
+    from: Client,
+	type: Reliable,
+	call: ManyAsync,
+	data: (throttle: i8, steer: i8)
+}
