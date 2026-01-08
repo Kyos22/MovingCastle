@@ -22,10 +22,26 @@ funct Get_Profile = {
     args: (async: boolean?),
     rets: (unknown)
 }
----------- car ---------------
+---------- Castle ---------------
 event car_move = {
     from: Client,
 	type: Reliable,
 	call: ManyAsync,
 	data: (throttle: i8, steer: i8)
 }
+
+event Start_Drive = {
+    from: Client,
+	type: Reliable,
+	call: SingleAsync,
+	data: ()
+}
+
+event Castle_Setup_Client = {
+    from: Server,
+	type: Reliable,
+	call: SingleAsync,
+	data: ()
+}
+
+

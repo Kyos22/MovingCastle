@@ -14,6 +14,7 @@ local Yumi = require(ReplicatedStorage.Shared.Core.Yumi)
 local Server = require(ReplicatedStorage.Shared.Network.Server)
 ---->> Interfaces
 local ProfileInterface = require(Interfaces.Profile)
+local CastleInterface = require(Interfaces.Castle)
 
 ---->> Data Modifier
 -- local BalanceData = require(DataModifiers.Balance)
@@ -22,22 +23,22 @@ local ProfileInterface = require(Interfaces.Profile)
 --// Constants & Enums
 local GroupDataList = {
 	{
-		GroupId = 34793917, --leco
+		GroupId = 35478076, -- kyos
 		DevRank = 253,
-	},
-	{
-		GroupId = 35895059, --leco lab
-		DevRank = 250,
 	},
 }
 --// Variables
 local DeveloperCommands = {
 	ResetData = "ResetData",
-	
+	RunCastle = "RunCastle",
 }
 local DeveloperCommandAlias = {
 	[DeveloperCommands.ResetData] = {
 		PrimaryAlias = "/resetData",
+		SecondaryAlias = "",
+	},
+	[DeveloperCommands.RunCastle] = {
+		PrimaryAlias = "/runCastle",
 		SecondaryAlias = "",
 	},
 	
@@ -86,6 +87,9 @@ local function OnDeveloperCommandTrigger(textSource: TextSource, text: string)
 	local commandWord = words[1]
 	if IsDeveloperCommandAlias(commandWord, DeveloperCommands.ResetData) then
 		ProfileInterface.Reset(player)
+	elseif IsDeveloperCommandAlias(commandWord, DeveloperCommands.RunCastle) then
+		-- ProfileInterface.Reset(player)
+		CastleInterface.StartDrive(player)
 	end
 end
 local function DeveloperCommandInitialize()

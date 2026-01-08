@@ -72,7 +72,17 @@ function module._Start()
 	table.insert(module.Connections, UIS.InputBegan:Connect(onInputBegan))
 	table.insert(module.Connections, UIS.InputEnded:Connect(onInputEnded))
 
-    module.SetDriveEnabled(true)
+	-- table.insert(module.Connections, UIS.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
+	-- 	if input.KeyCode == Enum.KeyCode.W then
+	-- 		print("press F")
+	-- 		Client.Start_Drive.Fire()
+	-- 		module.SetDriveEnabled(true)
+	-- 	end
+	-- end))
+
+	Client.Castle_Setup_Client.SetCallback(function(player: Player) 
+		module.SetDriveEnabled(true)
+	end)
 end
 
 function module.StartDrive()
