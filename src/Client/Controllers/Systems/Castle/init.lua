@@ -6,6 +6,8 @@ local Client = require(ReplicatedStorage.Shared.Network.Client)
 
 local throttle, steer = 0, 0
 
+local CameraModule = require(script.Camera)
+
 export type APIsType = {
 	Connections: {RBXScriptConnection},
 	IsDriving: boolean,
@@ -65,6 +67,9 @@ local function disconnectAll()
 	table.clear(module.Connections)
 end
 
+
+
+
 function module._Start()
 	-- connect đúng 1 lần trong vòng đời module
 	disconnectAll()
@@ -80,7 +85,7 @@ function module._Start()
 	-- 	end
 	-- end))
 
-	Client.Castle_Setup_Client.SetCallback(function(player: Player) 
+	Client.Castle_Setup_Client.SetCallback(function()
 		module.SetDriveEnabled(true)
 	end)
 end
@@ -98,8 +103,14 @@ function module.StopDrive()
 	send()
 end
 
+
+
 function module.SetDriveEnabled(enabled: boolean)
+
+	local model = workspace:WaitForChild("Car") -- just for test
+	local pos = CFrame.new(0,20,0) * CFrame.Angles(0, math.rad(90), 0)
 	if enabled then
+		CameraModule.Setup(model, pos)
 		module.StartDrive()
 	else
 		module.StopDrive()

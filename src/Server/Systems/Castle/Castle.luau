@@ -9,8 +9,9 @@ module.metatable = { __index = module.methods}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Server = require(ReplicatedStorage.Shared.Network.Server)
-
-
+-->> Modules
+-- local CameraModule = require(script.Parent.Camera)
+-- local camera = workspace.CurrentCamera
 local SPEED = 50
 local TURN_SPEED = 120
 
@@ -66,9 +67,30 @@ end
 function module.methods.StopDriving(self:Type)
     setDriver(nil)
 end
+-- local conn : RBXScriptConnection?
+
+-- function module.methods.Camera(self:Type)
+--     local model = self.Model
+--     if not model then return end
+--     if not model.PrimaryPart then return end
+--     print('model',model,model.PrimaryPart.CFrame)
+--     camera.CameraType = Enum.CameraType.Scriptable
+--     camera.CameraSubject = self.Model
+--     print("camera",camera)
+--     -- if conn then conn:Disconnect() end
+--     conn = RunService.Heartbeat:Connect(function()
+--         local camCF = model.PrimaryPart.CFrame * CFrame.new(0, 6, 18)
+--         print("cam", camCF)
+--         camera.CFrame = camCF
+--     end)
+-- end
 
 function module.methods.Drive(self:Type)
     local _p = self._private
+
+    -- CameraModule.Setup(self,CFrame.new(0, 6, 18))
+
+    -- self:Camera()
 
     Server.Castle_Setup_Client.Fire(self.Player)
 
@@ -81,7 +103,7 @@ function module.methods.Drive(self:Type)
         
         state.throttle = clamp(t)
         state.steer = clamp(s)
-        state.lastInputAt = os.clock()
+        state.lastInputAt = os.clock() 
     end)
 
     _p.connections["HB"] = RunService.Heartbeat:Connect(function(dt: number)
